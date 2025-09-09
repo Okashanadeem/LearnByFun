@@ -1,144 +1,121 @@
+# --- Step 1: Alternating Caesar Shift ---
 def alternating_caesar_shift(text):
-    """Step 1: Apply alternating Caesar shift (+7/+3) to letters only"""
+    """Apply alternating Caesar shift (+7 / +3) to letters only.
+       Uppercase letters are escaped with '@' before the shifted letter."""
     result = []
     letter_position = 0
-    
+
     for ch in text:
         if ch.isalpha():
-            # Alternate between +7 and +3 shifts based on letter position
-            current_shift = 7 if letter_position % 2 == 0 else 3
+            shift = 7 if letter_position % 2 == 0 else 3
             letter_position += 1
-            
-            if ch.isupper():  # Uppercase: prepend "_"
+
+            if ch.isupper():
                 base = ord('A')
-                shifted = chr((ord(ch) - base + current_shift) % 26 + ord('a'))  # make lowercase
-                result.append("_" + shifted)
-            else:  # lowercase
+                shifted = chr((ord(ch) - base + shift) % 26 + ord('a'))  # store lowercase
+                result.append("@" + shifted)  # escape uppercase with @
+            else:
                 base = ord('a')
-                shifted = chr((ord(ch) - base + current_shift) % 26 + base)
+                shifted = chr((ord(ch) - base + shift) % 26 + base)
                 result.append(shifted)
         else:
             result.append(ch)
     return ''.join(result)
 
-def rotate_numbers(text):
-    """Step 2: Apply ROT5 to all digits (0→5, 1→6, ..., 5→0, 6→1, ...)"""
-    result = []
-    for ch in text:
-        if ch.isdigit():
-            # Apply ROT5: add 5 and wrap around
-            rotated = str((int(ch) + 5) % 10)
-            result.append(rotated)
-        else:
-            result.append(ch)
-    return ''.join(result)
 
+# --- Step 2: ROT5 for numbers ---
+def rotate_numbers(text):
+    """Apply ROT5 to digits."""
+    return ''.join(str((int(ch) + 5) % 10) if ch.isdigit() else ch for ch in text)
+
+
+# --- Step 3: Reverse text ---
 def reverse_text(text):
-    """Step 3: Reverse the entire string"""
     return text[::-1]
 
+
+# --- Step 4: Mirror letters ---
 def mirror_letters(text):
-    """Step 4: Mirror all letters in the alphabet (a↔z, b↔y, etc.)"""
+    """Mirror all letters in the alphabet (a↔z, b↔y, etc.)."""
     result = []
     for ch in text:
-        if ch == '_':
-            result.append(ch)
-        elif ch.isalpha():
+        if ch.isalpha():
             if ch.islower():
-                # Mirror: a(0) ↔ z(25), b(1) ↔ y(24), etc.
-                mirrored = chr(ord('z') - (ord(ch) - ord('a')))
-                result.append(mirrored)
+                result.append(chr(ord('z') - (ord(ch) - ord('a'))))
             else:
-                # This shouldn't happen since we convert to lowercase in step 1
-                mirrored = chr(ord('Z') - (ord(ch) - ord('A')))
-                result.append(mirrored)
+                result.append(chr(ord('Z') - (ord(ch) - ord('A'))))
         else:
             result.append(ch)
     return ''.join(result)
 
+
+# --- Step 5: Symbol mapping ---
+SYMBOL_MAP = {
+    " ": ".", ".": " ",
+    "?": "!", "!": "?",
+    '"': "%", ",": "^",
+    ";": "&", ":": "~",
+    "'": "#",  # Added mapping for apostrophe
+    "&": ";"   # Added mapping for ampersand
+}
+
 def map_symbols(text):
-    """Step 5: Apply symbol mapping (space↔., ?↔!, etc.)"""
-    mapped = []
-    for ch in text:
-        if ch == " ":
-            mapped.append(".")
-        elif ch == ".":
-            mapped.append(" ")
-        elif ch == "?":
-            mapped.append("!")
-        elif ch == "!":
-            mapped.append("?")
-        elif ch == '"':
-            mapped.append("%")
-        elif ch == ",":
-            mapped.append("^")
-        elif ch == ";":
-            mapped.append("&")
-        elif ch == ":":
-            mapped.append("~")
-        else:
-            mapped.append(ch)
-    return ''.join(mapped)
+    return ''.join(SYMBOL_MAP.get(ch, ch) for ch in text)
 
 
-# Comment the steps if  see just the result
+# --- Encoding Pipeline ---
+ENCODING_STEPS = [
+    alternating_caesar_shift,
+    rotate_numbers,
+    reverse_text,
+    mirror_letters,
+    map_symbols
+]
 
-def encode_message(text):
-    """Apply all 5 encoding steps in sequence"""
-    print(f"Original:  \"{text}\"")
-    
-    # Step 1: Alternating Caesar Shift
-    step1 = alternating_caesar_shift(text)
-    print(f"Step 1:    \"{step1}\"  (alternating shifts + uppercase marking)")
-    
-    # Step 2: Number Rotation (ROT5)
-    step2 = rotate_numbers(step1)
-    print(f"Step 2:    \"{step2}\"  (numbers rotated)")
-    
-    # Step 3: Text Reversal
-    step3 = reverse_text(step2)
-    print(f"Step 3:    \"{step3}\"  (reversed)")
-    
-    # Step 4: Letter Mirroring
-    step4 = mirror_letters(step3)
-    print(f"Step 4:    \"{step4}\"  (letters mirrored)")
-    
-    # Step 5: Symbol Mapping
-    step5 = map_symbols(step4)
-    print(f"Final:     \"{step5}\"")
-    
-    return step5
 
+# --- Encoder ---
+def encode_message(text, verbose=True):
+    if verbose: 
+        print(f'Original: "{text}"')
+    for i, func in enumerate(ENCODING_STEPS, 1):
+        text = func(text)
+        if verbose: 
+            print(f"Step {i}: \"{text}\" ({func.__name__})")
+    return text
+
+
+# --- Test Runner ---
 def run_tests():
-    """Built-in test cases as mentioned in README"""
     print("=" * 50)
     print("RUNNING BUILT-IN TEST CASES")
     print("=" * 50)
-    
+
     test_cases = [
         "Hello World!",
         "ABC123",
         'Say "Hello, friend!"'
     ]
-    
+
     for i, test in enumerate(test_cases, 1):
         print(f"\nTest Case {i}:")
         print("-" * 20)
-        encoded = encode_message(test)
+        encoded = encode_message(test, verbose=True)
+        print(f"Final Cipher: \"{encoded}\"")
         print()
 
-# Main Program
+
+# --- Main ---
 if __name__ == "__main__":
-    print("Enhanced Caesar Cipher - Encoder")
+    print("Caesar Cipher Encoder By Okasha Nadeem")
     print("=" * 40)
-    
-    # Ask user if they want to run tests
+
     choice = input("Run built-in tests? (y/n): ").lower().strip()
     if choice == 'y':
         run_tests()
         print("\n" + "=" * 50)
-    
-    # Get user input
-    sentence = input("Enter a sentence: ")
-    cipher = encode_message(sentence)
-    print(f"\nCipher output: {cipher}")
+
+    verbose = input("Show steps? (y/n): ").lower().strip() == 'y'
+    sentence = input("Enter a sentence to encode: ")
+
+    result = encode_message(sentence, verbose)
+    print(f"\nCipher output: {result}")

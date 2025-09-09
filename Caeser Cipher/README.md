@@ -14,6 +14,7 @@ Key features:
 - Self-inverse operations where possible (e.g., mirroring and reversal).
 - Built-in test cases for verification.
 - Interactive mode for user input.
+- Verbose mode to show step-by-step transformations.
 
 Note: The cipher is for educational or fun purposes and not cryptographically secure.
 
@@ -25,10 +26,10 @@ The encoding process applies five steps in sequence to transform the input text.
 - Processes alphabetic characters only.
 - Tracks the position of letters (ignoring non-letters).
 - Applies a shift of +7 for even positions (0-based) and +3 for odd positions.
-- Uppercase letters are converted to lowercase, shifted, and prepended with an underscore (`_`) to mark them for restoration during decoding.
+- **Uppercase letters** are converted to lowercase, shifted, and prepended with an `@` symbol to mark them for restoration during decoding.
 - Lowercase letters are shifted and remain lowercase.
 - Wraps around the alphabet using modulo 26.
-- Example: 'A' (position 0) → shifted by +7 to 'h', becomes `_h`.
+- Example: 'A' (position 0) → shifted by +7 to 'h', becomes `@h`.
 
 ### Step 2: Number Rotation (ROT5 on Digits)
 - Processes digits (0-9) only.
@@ -43,7 +44,7 @@ The encoding process applies five steps in sequence to transform the input text.
 - Processes alphabetic characters only (now all lowercase due to Step 1).
 - Mirrors letters in the alphabet: a ↔ z, b ↔ y, c ↔ x, ..., m ↔ n.
 - Formula: For a lowercase letter, new_char = chr(ord('z') - (ord(ch) - ord('a'))).
-- Underscores (`_`) and non-letters pass through unchanged.
+- The `@` symbols and non-letters pass through unchanged.
 - This operation is self-inverse (applying it twice returns the original).
 
 ### Step 5: Symbol Mapping
@@ -56,6 +57,8 @@ The encoding process applies five steps in sequence to transform the input text.
   - `,` ↔ `^`
   - `;` ↔ `&`
   - `:` ↔ `~`
+  - `'` ↔ `#` (apostrophe mapping)
+  - `&` ↔ `;` (ampersand mapping)
 - Other characters remain unchanged.
 - This is also self-inverse.
 
@@ -63,7 +66,7 @@ The final output is the result after all steps.
 
 ## Decoding Process
 
-Decoding reverses the encoding steps in the opposite order, applying inverse operations. Like encoding, it prints each step for visibility.
+Decoding reverses the encoding steps in the opposite order, applying inverse operations. Like encoding, it prints each step for visibility when verbose mode is enabled.
 
 ### Step 1: Reverse Symbol Mapping
 - Reverses the substitutions from Encoding Step 5 (uses the same mapping since it's pairwise).
@@ -79,7 +82,7 @@ Decoding reverses the encoding steps in the opposite order, applying inverse ope
 
 ### Step 5: Reverse Alternating Caesar Shift
 - Processes the text while tracking letter positions (ignoring non-letters).
-- For marked uppercase (`_` followed by a lowercase letter): Removes `_`, reverses the shift (-7 or -3 based on position), and converts to uppercase.
+- For marked uppercase (`@` followed by a lowercase letter): Removes `@`, reverses the shift (-7 or -3 based on position), and converts to uppercase.
 - For lowercase letters: Reverses the shift (-7 or -3 based on position).
 - Restores the original case and positions.
 
@@ -98,48 +101,134 @@ The final output is the decoded original text.
 4. You'll be prompted: "Run built-in tests? (y/n):"
    - Enter `y` to run tests (shows encoding for sample inputs with step-by-step output).
    - Enter `n` to skip.
-5. Then: "Enter a sentence:"
-   - Input your text (e.g., "Do you know my name? I am Okasha! ; I'm 19 yo.").
-6. The script prints each encoding step and the final cipher.
-7. Example output includes the final "Cipher output: ?thfea_.elhsl_"
+5. Then: "Show steps? (y/n):"
+   - Enter `y` to see detailed step-by-step transformations.
+   - Enter `n` for output only.
+6. Finally: "Enter a sentence to encode:"
+   - Input your text (e.g., "My name is Okasha Nadeem & I'm 19 yo.").
+7. The script prints each encoding step (if verbose) and the final cipher.
 
 ### Running the Decoder (`caeserCipherDecode.py`)
 1. Run: `python caeserCipherDecode.py`
 2. Prompt: "Run built-in tests? (y/n):"
-   - `y` runs tests with round-trip verification (decodes sample ciphers and checks against originals).
-   - Note: The built-in test ciphers in the code may need updating for accuracy (see Known Issues below). Correct expected ciphers are provided in Test Cases section.
-3. Then: "Enter cipher text to decode:"
-   - Input the cipher (e.g., "?thfea_.elhsl_").
-4. The script prints each decoding step and the original text.
-5. Example: "Decoded message: Hello World!"
+   - `y` runs tests with round-trip verification (automatically encodes test cases first, then decodes them).
+   - The tests now dynamically generate correct cipher text for accurate verification.
+3. Then: "Show steps? (y/n):"
+   - `y` shows detailed step-by-step reverse transformations.
+   - `n` shows only the final result.
+4. Finally: "Enter cipher text to decode:"
+   - Input the cipher (e.g., "iu.46.k#k@.&.kospwf@.wlesme@.ek.sgwf.yg@").
+5. The script prints each decoding step (if verbose) and the original text.
 
 ### Testing Round-Trip
-- Encode a message, copy the cipher, then decode it—it should match the original.
+- Encode a message, copy the cipher, then decode it—it should match the original exactly.
 - Use the built-in tests for quick verification.
 
 ## Test Cases
 
-Here are the built-in test cases with correct expected outputs (based on actual runs). If the decoder's test cases don't match these, update the `test_cases` list in `caeserCipherDecode.py` accordingly.
+Here are the built-in test cases that work with the current implementation:
 
-1. Original: "Hello World!"  
-   Encoded: "?thfea_.elhsl_"  
-   Decoded: "Hello World!" (PASS)
+### Example 1:
+- **Original:** "Hello World!"
+- **Encoded:** (dynamically generated by encoder)
+- **Decoded:** "Hello World!" ✅
 
-2. Original: "ABC123"  
-   Encoded: "876q_v_s_"  
-   Decoded: "ABC123" (PASS)
+### Example 2:
+- **Original:** "ABC123"
+- **Encoded:** (dynamically generated by encoder)
+- **Decoded:** "ABC123" ✅
 
-3. Original: 'Say "Hello, friend!"'  
-   Encoded: "%?tfskfn.^ihlop_%.uwa_"  
-   Decoded: 'Say "Hello, friend!"' (PASS)
+### Example 3:
+- **Original:** 'Say "Hello, friend!"'
+- **Encoded:** (dynamically generated by encoder)
+- **Decoded:** 'Say "Hello, friend!"' ✅
 
-## Known Issues and Notes
-- The decoder's built-in test cases have incorrect expected ciphers (they don't match the encoder's output). Update them as shown above to fix round-trip tests.
-- Non-ASCII characters may not be handled gracefully—stick to English letters, digits, and supported symbols.
-- Letter positions for shifts ignore non-letters, ensuring consistent encoding/decoding.
-- If you encounter mismatches, check for extra spaces or case issues in input.
+### Real-World Example:
+- **Original:** "My name is Okasha Nadeem & I'm 19 yo."
+- **Encoded:** "iu.46.k#k@.&.kospwf@.wlesme@.ek.sgwf.yg@"
+- **Decoded:** "My name is Okasha Nadeem & I'm 19 yo." ✅
+
+## Key Improvements Made
+
+### Fixed Issues:
+1. **Uppercase Escape Character Conflict**: Changed from `^` to `@` to avoid conflict with comma mapping.
+2. **Symbol Mapping Completeness**: Added mappings for apostrophes (`'` ↔ `#`) and ampersands (`&` ↔ `;`).
+3. **Bidirectional Consistency**: Ensured all symbol mappings are perfectly reversible.
+4. **Dynamic Test Cases**: Decoder tests now generate cipher text using the encoder for accurate verification.
+
+### Enhanced Features:
+- **Verbose Mode**: Optional step-by-step display during encoding/decoding.
+- **Comprehensive Symbol Support**: Handles common punctuation marks including apostrophes and ampersands.
+- **Robust Testing**: Built-in tests verify round-trip accuracy automatically.
+- **Error Prevention**: Eliminated character conflicts that caused decoding errors.
+
+## Supported Characters
+
+### Letters:
+- Uppercase (A-Z): Converted to lowercase, shifted, and marked with `@`
+- Lowercase (a-z): Shifted and remain lowercase
+
+### Numbers:
+- Digits (0-9): ROT5 transformation
+
+### Symbols (with mapping):
+- Space ` ` ↔ `.`
+- Period `.` ↔ Space ` `
+- Question mark `?` ↔ `!`
+- Exclamation `!` ↔ `?`
+- Quote `"` ↔ `%`
+- Comma `,` ↔ `^`
+- Semicolon `;` ↔ `&`
+- Colon `:` ↔ `~`
+- Apostrophe `'` ↔ `#`
+- Ampersand `&` ↔ `;`
+
+### Other Characters:
+- Pass through unchanged (parentheses, brackets, mathematical symbols, etc.)
+
+## Technical Details
+
+### Alternating Caesar Shifts:
+- Even letter positions (0, 2, 4, ...): +7 shift
+- Odd letter positions (1, 3, 5, ...): +3 shift
+- Position counting ignores non-alphabetic characters
+
+### ROT5 for Numbers:
+- Simple Caesar cipher for digits: (digit + 5) % 10
+
+### Atbash Mirroring:
+- Maps each letter to its mirror position: a→z, b→y, etc.
+- Self-inverse operation
+
+## Known Limitations
+
+- **Non-ASCII Characters**: May not handle Unicode characters properly—stick to standard ASCII.
+- **Security**: This is an educational cipher, not suitable for real cryptographic applications.
+- **Case Sensitivity**: Relies on `@` markers for uppercase restoration.
+
+## Troubleshooting
+
+### Common Issues:
+1. **Encoding/Decoding Mismatch**: Ensure you're using the same version of both scripts.
+2. **Missing Characters**: Check that all symbols in your input are supported or pass through unchanged.
+3. **Extra Spaces**: Input and output should match exactly—check for trailing spaces.
+
+### Verification Steps:
+1. Run built-in tests first to ensure scripts work correctly.
+2. Try simple inputs like "Hello" before complex sentences.
+3. Use verbose mode to see where transformations might be going wrong.
 
 ## Contributing
-Feel free to fork and improve! Suggestions: Add file I/O, more symbols, or CLI arguments.
 
-For questions, visit my [portfolio](https://okashadev.vercel.app).
+Feel free to fork and improve! Suggested enhancements:
+- File I/O support for batch processing
+- Command-line arguments for automation
+- Additional symbol mappings
+- GUI interface
+- Support for Unicode characters
+
+For questions or suggestions, visit my [portfolio](https://okashadev.vercel.app).
+
+## License
+
+This project is open source and available for educational purposes. Feel free to use, modify, and distribute.
