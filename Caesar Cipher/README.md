@@ -44,7 +44,7 @@ datetime (built-in)
 1. **Clone or Download** the project files:
    ```bash
    git clone https://github.com/Okashanadeem/LearnByFun.git
-   cd LearnByFun/Caeser/Caesar Cipher
+   cd LearnByFun/Caesar Cipher
    ```
 
 2. **Install Dependencies**:
@@ -65,7 +65,7 @@ datetime (built-in)
 
 #### Web Interface (Recommended)
 ```bash
-streamlit run app.py
+streamlit run streamlit_app.py
 ```
 The application will open in your default browser at `http://localhost:8501`
 
