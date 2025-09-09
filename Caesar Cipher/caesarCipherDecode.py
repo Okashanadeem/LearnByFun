@@ -90,7 +90,7 @@ def run_tests():
     print("=" * 50)
 
     # First encode some test cases to get the correct cipher text
-    from caeserCipherEncode import encode_message as encode_test
+    from caesarCipherEncode import encode_message as encode_test
     
     test_cases = [
         "Hello World!",
